@@ -1,6 +1,6 @@
 import numpy as np
-from camj.analog.energy_utils import gm_id, get_pixel_parasitic, parallel_impedance, get_delay, get_nominal_supply
-
+from energy_utils import gm_id, get_pixel_parasitic, parallel_impedance, get_delay, get_nominal_supply
+import matplotlib.pyplot as plt
 
 class PinnedPhotodiodeEnergy(object):
     """Pinned photodiode (PD).
@@ -127,6 +127,53 @@ class ActivePixelSensorEnergy(PinnedPhotodiodeEnergy):
         input_capacitance = None
         output_capacitance = self.load_capacitance
         return [input_capacitance, output_capacitance]
+
+# # Parameters
+# pd_supply = 1.8
+# num_transistor = 4
+# tech_node = 130
+# pitch = 4
+# array_vsize = 128
+# output_vs = 1
+
+# # Generate data for plots
+# load_cap_range = np.linspace(1e-13, 5e-12, 100)
+# fd_cap_range = np.linspace(1e-15, 5e-14, 100)
+# pd_cap_range = np.linspace(1e-14, 5e-13, 100)
+
+# energy_load_cap = [ActivePixelSensorEnergy(pd_capacitance=100e-15, pd_supply=pd_supply, load_capacitance=lc).energy() for lc in load_cap_range]
+# energy_fd_cap = [ActivePixelSensorEnergy(pd_capacitance=100e-15, pd_supply=pd_supply, fd_capacitance=fc).energy() for fc in fd_cap_range]
+# energy_pd_cap = [ActivePixelSensorEnergy(pd_capacitance=pc, pd_supply=pd_supply).energy() for pc in pd_cap_range]
+
+# # Plotting
+# plt.figure(figsize=(15, 5))
+
+# plt.subplot(1, 3, 1)
+# plt.plot(load_cap_range * 1e12, energy_load_cap, label="Energy vs Load Cap")
+# plt.xlabel("Load Capacitance (pF)")
+# plt.ylabel("Energy (J)")
+# plt.title("Energy vs Load Capacitance")
+# plt.grid()
+# plt.legend()
+
+# plt.subplot(1, 3, 2)
+# plt.plot(fd_cap_range * 1e15, energy_fd_cap, label="Energy vs FD Cap", color='orange')
+# plt.xlabel("FD Capacitance (fF)")
+# plt.ylabel("Energy (J)")
+# plt.title("Energy vs Floating Diffusion Capacitance")
+# plt.grid()
+# plt.legend()
+
+# plt.subplot(1, 3, 3)
+# plt.plot(pd_cap_range * 1e15, energy_pd_cap, label="Energy vs PD Cap", color='green')
+# plt.xlabel("PD Capacitance (fF)")
+# plt.ylabel("Energy (J)")
+# plt.title("Energy vs Photodiode Capacitance")
+# plt.grid()
+# plt.legend()
+
+# plt.tight_layout()
+# plt.show()
 
 
 class DigitalPixelSensorEnergy(ActivePixelSensorEnergy):
@@ -695,6 +742,23 @@ class AnalogToDigitalConverterEnergy(object):
         LSB = self.supply / 2 ** (self.resolution - 1)
         return 1 / 12 * LSB ** 2
 
+# Parameters
+supply = 1.8
+fom = 100e-15
+
+# Generate data for plot
+resolution_range = np.arange(4, 16, 1)
+energy_resolution = [AnalogToDigitalConverterEnergy(supply=supply, fom=fom, resolution=res).energy() for res in resolution_range]
+
+# Plotting
+plt.figure(figsize=(8, 6))
+plt.plot(resolution_range, energy_resolution, label="Energy vs Resolution", marker='o')
+plt.xlabel("Resolution (bits)")
+plt.ylabel("Energy (J)")
+plt.title("Energy vs ADC Resolution")
+plt.grid()
+plt.legend()
+plt.show()
 
 class GeneralCircuitEnergy(object):
     """ Energy model for general circuits from first principle.
