@@ -491,6 +491,7 @@ class ActiveAnalogMemoryEnergy(object):
         output_capacitance = self.comp_capacitance
         return [input_capacitance, output_capacitance]
 
+#
 
 class PassiveAnalogMemoryEnergy(object):
     """ Analog memory without active feedback.
